@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/dmarkwat/concourse-elasticsearch/pkg/concourse"
 	"github.com/dmarkwat/concourse-elasticsearch/pkg/es"
+	"github.com/dmarkwat/concourse-elasticsearch/pkg/util"
 	elastic "github.com/elastic/go-elasticsearch/v7"
 	"log"
 	"os"
@@ -59,7 +60,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	marshal, err := json.Marshal(ids)
+	versions := concourse.MapVersion(ids, func(id string) concourse.Version {
+		return concourse.Version{
+			Id: id,
+		}
+	})
+
+	marshal, err := json.Marshal(versions)
 	if err != nil {
 		log.Fatal(err)
 	}

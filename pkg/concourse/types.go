@@ -28,9 +28,9 @@ type CheckRequest struct {
 type CheckResponse []Version
 
 type InRequest struct {
-	Source  *SourceConfig `json:"source,omitempty"`
-	Version *Version      `json:"version,omitempty"`
-	Params  *Params       `json:"params,omitempty"`
+	Source  SourceConfig `json:"source"`
+	Version Version      `json:"version"`
+	Params  *Params      `json:"params,omitempty"`
 }
 
 type InResponse struct {
