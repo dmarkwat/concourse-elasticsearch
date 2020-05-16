@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/dmarkwat/concourse-elasticsearch/pkg/concourse"
 	"github.com/dmarkwat/concourse-elasticsearch/pkg/es"
-	"github.com/dmarkwat/concourse-elasticsearch/pkg/util"
 	elastic "github.com/elastic/go-elasticsearch/v7"
 	"log"
 	"os"

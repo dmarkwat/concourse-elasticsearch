@@ -52,7 +52,6 @@ func main() {
 		log.Fatal(err)
 	}
 	if !exists {
-		// TODO add logic to create index
 		log.Fatalf("Index (%s) doesn't exist", request.Source.Index)
 	}
 

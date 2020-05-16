@@ -14,3 +14,7 @@ type EnvelopeResponse struct {
 		}
 	}
 }
+
+type PropertyMapping struct {
+	Type string `json:"type"`
+}

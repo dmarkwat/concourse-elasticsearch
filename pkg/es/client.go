@@ -135,3 +135,36 @@ func LatestBySortFields(client *elastic.Client, index string, sortFields []strin
 
 	return ids, nil
 }
+
+func CreateIndex(client *elastic.Client, index string, fieldMap map[string]PropertyMapping, sortFields []string) error {
+	properties := map[string]interface{}{}
+	for key, val := range fieldMap {
+		properties[key] = map[string]interface{}{
+			"type": val.Type,
+		}
+	}
+	settings := map[string]interface{}{
+		"settings": map[string]interface{}{
+			"index": map[string]interface{}{
+				"sort.field":   sortFields,
+				"sort.order":   "asc",
+				"sort.missing": "_first",
+			},
+		},
+		"mappings": map[string]interface{}{
+			"properties": properties,
+		},
+	}
+	marshal, err := json.Marshal(settings)
+	if err != nil {
+		return err
+	}
+	create, err := client.Indices.Create(index, client.Indices.Create.WithBody(bytes.NewReader(marshal)))
+	if err != nil {
+		return err
+	}
+	if create.StatusCode != 200 {
+		return errors.New(fmt.Sprintf("error creating index: %s", create.String()))
+	}
+	return nil
+}
