@@ -9,7 +9,6 @@ import (
 	"os"
 )
 
-//echo '{"source":{"addresses":["http://elasticsearch-master.elasticsearch:9200"],"index":"concourse","sort_fields":["timestamp"]}}' | /opt/resource/check
 func main() {
 	request, err := concourse.NewCheckRequest(os.Stdin)
 	if err != nil {
