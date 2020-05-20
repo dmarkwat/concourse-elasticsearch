@@ -9,30 +9,52 @@ import (
 	"os"
 )
 
+func indexExists(client *elastic.Client, index string) (bool, error) {
+	exists, err := es.IndexExists(client, index)
+	if err != nil {
+		return false, err
+	}
+	if !exists {
+		return false, nil
+	}
+	return true, nil
+}
+
+func getVersions(client *elastic.Client, request *concourse.CheckRequest) ([]concourse.Version, error) {
+	document, err := es.FindById(client, request.Source.Index, request.Version.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	if document == nil {
+		return nil, nil
+	}
+
+	ids, err := es.LatestBySortFields(client, request.Source.Index, request.Source.SortFields, document)
+	if err != nil {
+		return nil, err
+	}
+
+	versions := concourse.MapVersion(ids, func(id string) concourse.Version {
+		return concourse.Version{
+			Id: id,
+		}
+	})
+	return versions, nil
+}
+
 func main() {
 	request, err := concourse.NewCheckRequest(os.Stdin)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	cfg := elastic.Config{
-		Addresses: request.Source.Addresses,
-		Username:  request.Source.Username,
-		Password:  request.Source.Password,
-	}
-
-	client, err := elastic.NewClient(cfg)
+	client, err := es.NewClient(request.Source.Addresses, request.Source.Username, request.Source.Password)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	info, err := client.Info()
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println(info)
-
-	exists, err := es.IndexExists(client, request.Source.Index)
+	exists, err := indexExists(client, request.Source.Index)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,24 +67,18 @@ func main() {
 		return
 	}
 
-	document, err := es.FindById(client, request.Source.Index, request.Version.Id)
+	versions, err := getVersions(client, request)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if document == nil {
-	}
-
-	ids, err := es.LatestBySortFields(client, request.Source.Index, request.Source.SortFields, document)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	versions := concourse.MapVersion(ids, func(id string) concourse.Version {
-		return concourse.Version{
-			Id: id,
+	if versions == nil {
+		_, err = os.Stdout.Write([]byte(`[]`))
+		if err != nil {
+			log.Fatal(err)
 		}
-	})
+		return
+	}
 
 	marshal, err := json.Marshal(versions)
 	if err != nil {

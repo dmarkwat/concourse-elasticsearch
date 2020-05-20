@@ -10,6 +10,26 @@ import (
 	"log"
 )
 
+func NewClient(addresses []string, username string, password string) (*elastic.Client, error) {
+	cfg := elastic.Config{
+		Addresses: addresses,
+		Username:  username,
+		Password:  password,
+	}
+
+	client, err := elastic.NewClient(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	info, err := client.Info()
+	if err != nil {
+		return nil, err
+	}
+	log.Println(info)
+	return client, nil
+}
+
 func IndexExists(client *elastic.Client, index string) (bool, error) {
 	exists, err := client.Indices.Exists([]string{index})
 	if err != nil {

@@ -76,6 +76,23 @@ func CleanupIndex(t *testing.T, es *elastic.Client, index string) func() {
 	}
 }
 
+func TestNewClient(t *testing.T) {
+	t.Run("Bad addresses", func(t *testing.T) {
+		_, err := NewClient([]string{"http://does.not.exist.local:9999/"}, "", "")
+		if err == nil {
+			t.Error(err)
+			return
+		}
+	})
+	t.Run("Simple", func(t *testing.T) {
+		_, err := NewClient([]string{"http://localhost:9200"}, "", "")
+		if err != nil {
+			t.Error(err)
+			return
+		}
+	})
+}
+
 func TestIndexExists(t *testing.T) {
 	nonemptyIndex := "indexexists"
 
