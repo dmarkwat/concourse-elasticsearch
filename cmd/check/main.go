@@ -21,13 +21,17 @@ func indexExists(client *elastic.Client, index string) (bool, error) {
 }
 
 func getVersions(client *elastic.Client, request *concourse.CheckRequest) ([]concourse.Version, error) {
-	document, err := es.FindById(client, request.Source.Index, request.Version.Id)
-	if err != nil {
-		return nil, err
-	}
+	var document map[string]interface{}
+	if request.Version != nil {
+		// initial check
+		document, err := es.FindById(client, request.Source.Index, request.Version.Id)
+		if err != nil {
+			return nil, err
+		}
 
-	if document == nil {
-		return nil, nil
+		if document == nil {
+			return nil, nil
+		}
 	}
 
 	ids, err := es.LatestBySortFields(client, request.Source.Index, request.Source.SortFields, document)
