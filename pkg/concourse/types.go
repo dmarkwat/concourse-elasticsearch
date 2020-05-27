@@ -11,11 +11,12 @@ type SourceConfig struct {
 }
 
 type InParams struct {
+	Document string `json:"document"`
 }
 
 type OutParams struct {
 	Document string `json:"document"`
-	FieldMap map[string]es.PropertyMapping
+	FieldMap map[string]es.PropertyMapping `json:"field_map,omitempty"`
 }
 
 type Metadata struct {

@@ -57,7 +57,10 @@ func NewOutRequest(reader io.Reader) (*OutRequest, error) {
 	err = validateSource(&request.Source)
 	if err != nil {
 		return nil, err
-	} else {
-		return &request, nil
 	}
+
+	if request.Params.Document == "" {
+		return nil, fmt.Errorf("no document path provided")
+	}
+	return &request, nil
 }

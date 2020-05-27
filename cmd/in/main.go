@@ -60,8 +60,13 @@ func main() {
 		log.Fatal(err)
 	}
 	if document != nil {
-		// document found
-		outFile := path.Join(outputDir, request.Version.Id)
+		var outFile string
+		if request.Params.Document == "" {
+			outFile = path.Join(outputDir, request.Version.Id)
+		} else {
+			outFile = request.Params.Document
+		}
+
 		marshal, err := json.Marshal(document)
 		if err != nil {
 			log.Fatal(err)
